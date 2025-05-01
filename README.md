@@ -1,14 +1,14 @@
 # SkurrLabs Login Form Project
 
-This project is a React-based login form application built with TypeScript, Redux, Firebase Authentication, Tailwind CSS, and Vite. It includes a simulated CAPTCHA component, responsive styling, and comprehensive unit tests using Jest and React Testing Library.
+This project is a React-based login form application built with TypeScript, Redux, Firebase Authentication, Tailwind CSS, and Vite, using ES Modules (ESM). It includes a simulated CAPTCHA component and responsive styling for a seamless user experience.
 
 ## Features
 - **Login Form**: Email/password authentication with Firebase, remember-me checkbox, and CAPTCHA verification.
 - **CAPTCHA Component**: Memoized component with responsive styling (`text-sm sm:text-base`) and simplified state handling.
 - **Responsive Design**: Tailwind CSS for mobile-first styling.
 - **State Management**: Redux Toolkit for authentication state.
-- **Testing**: Unit tests for `Button`, `Input`, `Captcha`, and `LoginForm` components.
 - **Build Tool**: Vite for fast development and production builds.
+- **Module System**: ES Modules (`"type": "module"` in `package.json`).
 
 ## Prerequisites
 - **Node.js**: Version 18.x or higher.
@@ -20,7 +20,7 @@ This project is a React-based login form application built with TypeScript, Redu
 
 ### 1. Clone the Repository
 ```bash
-git clone <https://github.com/prathmeshlp/SkurrLabs-Assignment>
+git clone https://github.com/prathmeshlp/SkurrLabs-Assignment
 cd SkurrLabs
 ```
 
@@ -33,6 +33,7 @@ npm install
 Ensure the following key dependencies are installed:
 ```json
 {
+  "type": "module",
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -43,11 +44,6 @@ Ensure the following key dependencies are installed:
     "tailwindcss": "^3.4.13"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.6.2",
-    "@testing-library/react": "^16.0.1",
-    "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0",
-    "ts-jest": "^29.2.5",
     "typescript": "^5.6.2",
     "vite": "^5.4.8",
     "@vitejs/plugin-react": "^4.3.2"
@@ -77,9 +73,9 @@ Ensure the following key dependencies are installed:
    ```
 
 ### 4. Configure Tailwind CSS
-Ensure `tailwind.config.js` is set up to process TypeScript and TSX files:
+Ensure `tailwind.config.js` is set up to process TypeScript and TSX files using ESM syntax:
 ```javascript
-module.exports = {
+export default {
   content: ['./src/**/*.{ts,tsx}'],
   theme: { extend: {} },
   plugins: [],
@@ -92,7 +88,7 @@ npx tailwindcss -i ./src/index.css -o ./dist/output.css --watch
 ```
 
 ### 5. Resolve TypeScript Configuration Conflicts
-The project uses `tsconfig.json` for development and `tsconfig.test.json` for tests. A common issue is a conflicting `tsconfig.json` in a parent directory (e.g., `D:/Node Js Course 2025/`) with an invalid `reference.path` option, causing errors like `TS5024` in Jest or `Cannot read properties of undefined (reading 'endsWith')` in Vite.
+The project uses `tsconfig.json` for development. A conflicting `tsconfig.json` in a parent directory (e.g., `D:/Node Js Course 2025/`) with an invalid `reference.path` option can cause Vite errors like `Cannot read properties of undefined (reading 'endsWith')`.
 
 #### Check for Conflicting `tsconfig.json` Files
 Search for `tsconfig.json` files in parent directories:
@@ -151,67 +147,23 @@ Ensure `tsconfig.json` in the project root matches:
 }
 ```
 
-#### Verify `tsconfig.test.json`
-Ensure `tsconfig.test.json` exists for Jest:
-```json
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "jsx": "react-jsx",
-    "module": "commonjs",
-    "esModuleInterop": true,
-    "isolatedModules": true
-  },
-  "include": ["src/tests/**/*", "src/**/*.test.tsx", "src/**/*.test.ts"],
-  "exclude": ["node_modules"]
-}
-```
-
 ### 6. Configure Vite
-Ensure `vite.config.ts` explicitly references `tsconfig.json` to avoid configuration conflicts:
+Ensure `vite.config.ts` is ESM-compatible and explicitly references `tsconfig.json` to avoid configuration conflicts:
 ```typescript
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import fs from 'fs/promises';
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(async () => ({
   plugins: [react()],
   esbuild: {
-    tsconfigRaw: require('./tsconfig.json'), // Explicitly load project's tsconfig.json
+    tsconfigRaw: JSON.parse(await fs.readFile('./tsconfig.json', 'utf-8')),
   },
-});
+}));
 ```
 
-### 7. Verify Jest Configuration
-Ensure `jest.config.js` is configured to use `tsconfig.test.json`:
-```javascript
-module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
-  moduleNameMapper: {
-    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
-    '\\.(png|jpg|jpeg|gif|svg)$': '<rootDir>/tests/__mocks__/fileMock.js',
-  },
-  transform: {
-    '^.+\\.(ts|tsx)$': ['ts-jest', {
-      tsconfig: '<rootDir>/tsconfig.test.json'
-    }]
-  }
-};
-```
-
-Confirm `jest.setup.ts` enables Testing Library matchers:
-```typescript
-import '@testing-library/jest-dom';
-```
-
-Ensure `tests/__mocks__/fileMock.js` exists for static assets:
-```javascript
-module.exports = 'test-file-stub';
-```
-
-### 8. Run the Application
+### 7. Run the Application
 Clear Vite cache to remove stale configurations:
 ```bash
 rm -rf node_modules/.vite
@@ -223,31 +175,6 @@ npm run dev
 ```
 
 The app will be available at `http://localhost:5173` (or the port specified by Vite).
-
-### 9. Run Tests
-Clear Jest cache to remove stale configurations:
-```bash
-npm test -- --clearCache
-```
-
-Run all tests:
-```bash
-npm test
-```
-
-Run specific test files:
-```bash
-npm test src/tests/Button.test.tsx
-npm test src/tests/Input.test.tsx
-npm test src/tests/Captcha.test.tsx
-npm test src/tests/LoginForm.test.tsx
-```
-
-#### Test Coverage
-- **Button.test.tsx**: Tests rendering, disabled state, and type attribute.
-- **Input.test.tsx**: Tests rendering, input changes, and placeholder/required attributes.
-- **Captcha.test.tsx**: Tests responsive styling (`text-sm sm:text-base`), `onVerify` calls, verified state, memoization, and prop changes.
-- **LoginForm.test.tsx**: Tests form rendering, CAPTCHA verification, successful/failed logins, loading spinner, and `captchaVerified` prop passing.
 
 ### Troubleshooting
 
@@ -270,46 +197,14 @@ npm test src/tests/LoginForm.test.tsx
     ```bash
     npm run dev
     ```
-
-#### TS5024: Compiler option 'reference.path' requires a value of type string (Jest)
-- **Cause**: A conflicting `tsconfig.json` in a parent directory.
-- **Fix**:
-  - Search for `tsconfig.json`:
-    ```bash
-    dir tsconfig.json /s
-    ```
-  - Rename conflicting files:
-    ```bash
-    ren "D:\Node Js Course 2025\tsconfig.json" tsconfig.json.bak
-    ```
-  - Clear Jest cache:
-    ```bash
-    npm test -- --clearCache
-    ```
   - Move the project to a new directory if needed:
     ```bash
     mkdir D:\SkurrLabsTest
     move D:\Node Js Course 2025\SkurrLabs D:\SkurrLabsTest\
     cd D:\SkurrLabsTest\SkurrLabs
     npm install
-    npm test
+    npm run dev
     ```
-
-#### Test Failures
-- **Firebase Mocks** (in `LoginForm.test.tsx`):
-  ```javascript
-  jest.mock('../firebase/firebaseConfig', () => ({ auth: {} }));
-  jest.mock('firebase/auth', () => ({ signInWithEmailAndPassword: jest.fn() }));
-  ```
-- **react-hot-toast Mocks**:
-  ```javascript
-  jest.mock('react-hot-toast', () => ({ success: jest.fn(), error: jest.fn() }));
-  ```
-- **Spinner**: Ensure `Spinner.tsx` has:
-  ```tsx
-  const Spinner = () => <div data-testid="spinner">Loading...</div>;
-  export default Spinner;
-  ```
 
 #### Module Not Found
 - Verify import paths (e.g., `../components/common/Button` for `Button.tsx`).
@@ -320,9 +215,9 @@ npm test src/tests/LoginForm.test.tsx
   - `LoginForm.tsx`
   - `Spinner.tsx`
 
-#### Jest Environment Issues
-- Confirm `jest-environment-jsdom` is installed (`^29.7.0`).
-- Ensure `jest.config.js` has `testEnvironment: 'jsdom'`.
+#### Firebase Configuration Issues
+- Ensure `src/firebase/firebaseConfig.ts` has valid Firebase credentials.
+- Verify Email/Password authentication is enabled in Firebase.
 
 ### Project Structure
 ```
@@ -342,27 +237,16 @@ SkurrLabs/
 │   ├── store/
 │   │   ├── authSlice.ts
 │   │   ├── store.ts
-│   ├── tests/
-│   │   ├── __mocks__/
-│   │   │   ├── fileMock.js
-│   │   ├── Button.test.tsx
-│   │   ├── Input.test.tsx
-│   │   ├── Captcha.test.tsx
-│   │   ├── LoginForm.test.tsx
-├── jest.config.js
-├── jest.setup.ts
-├── tsconfig.json
-├── tsconfig.test.json
 ├── vite.config.ts
 ├── tailwind.config.js
+├── tsconfig.json
 ├── package.json
 ├── README.md
 ```
 
 ### Next Steps
 - **Production CAPTCHA**: Replace simulated CAPTCHA with Google reCAPTCHA.
-- **Integration Tests**: Use Firebase emulator for end-to-end authentication tests.
-- **Additional Tests**: Add `LoginPage.test.tsx` for page-level testing.
 - **Deployment**: Deploy to Vercel or Netlify.
+- **Authentication Enhancements**: Add password reset and signup functionality.
 
 For issues or contributions, please open an issue or submit a pull request on the repository.
