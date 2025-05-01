@@ -18,7 +18,7 @@ const initialState: AuthState = {
   error: null,
 };
 
-// Async thunk for login
+
 export const login = createAsyncThunk<LoginPayload, { email: string; password: string }, { rejectValue: string }>(
   'auth/login',
   async ({ email, password }, { rejectWithValue }) => {

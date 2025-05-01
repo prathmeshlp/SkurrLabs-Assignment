@@ -244,9 +244,9 @@ SkurrLabs/
 ├── README.md
 ```
 
-### Next Steps
+<!-- ### Next Steps
 - **Production CAPTCHA**: Replace simulated CAPTCHA with Google reCAPTCHA.
 - **Deployment**: Deploy to Vercel or Netlify.
-- **Authentication Enhancements**: Add password reset and signup functionality.
+- **Authentication Enhancements**: Add password reset and signup functionality. -->
 
 For issues or contributions, please open an issue or submit a pull request on the repository.
